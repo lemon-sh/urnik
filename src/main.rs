@@ -2,45 +2,35 @@ use std::{
 	collections::HashMap,
 	env,
 	fs::File,
-	io::{BufWriter, Read},
+	io::{BufWriter},
 	process,
 };
 
 use color_eyre::eyre::bail;
-use mimalloc::MiMalloc;
-use models::{Class, ScheduleSet};
-use profile::Profile;
+use models::{Lesson, ScheduleSet};
 use schedule_fetch::ScheduleFetch;
 
 mod models;
-mod profile;
 mod schedule_fetch;
 mod textutils;
-
-#[global_allocator]
-static GLOBAL: MiMalloc = MiMalloc;
 
 fn main() -> color_eyre::Result<()> {
 	color_eyre::install()?;
 
 	let mut args = env::args();
 	let executable_name = args.next().unwrap_or_default();
+	let url = args.next();
+	let output = args.next();
 
-	let Some(profile_path) = args.next() else {
-		eprintln!("Usage: {executable_name} <path to profile>");
+	let (Some(url), Some(output)) = (url, output) else {
+		eprintln!("Usage: {executable_name} <optivum url> <output json file>");
 		process::exit(1);
 	};
 
-	let mut profile_str = String::new();
-	File::open(profile_path)?.read_to_string(&mut profile_str)?;
-	let profile: Profile = toml::from_str(&profile_str)?;
-
-	let mut schedule_fetch = ScheduleFetch::new(profile.url);
+	let mut schedule_fetch = ScheduleFetch::new(url);
 
 	let mut intervals: Vec<(String, String)> = Vec::new();
-	let mut divisions: HashMap<String, Vec<Class>> = HashMap::new();
-	let mut rooms: HashMap<String, Vec<Class>> = HashMap::new();
-	let mut teachers: HashMap<String, Vec<Class>> = HashMap::new();
+	let mut schedules: HashMap<String, Vec<Lesson>> = HashMap::new();
 
 	while let Some(schedule) = schedule_fetch.next()? {
 		let Some(division) = textutils::between_once(&schedule, "\"tytulnapis\">", "</span>")
@@ -53,7 +43,7 @@ fn main() -> color_eyre::Result<()> {
 		let Some(class_rows) = rows.get(2..rows.len() - 3) else {
 			bail!("Couldn't extract class rows from the timetable");
 		};
-		let schedule_entry = divisions.entry(division.to_string()).or_default();
+		let schedule_entry = schedules.entry(division.to_string()).or_default();
 		for row in class_rows {
 			let Some(interval_number) = textutils::between_once(row, "\"nr\">", "</td>") else {
 				bail!("Couldn't extract the interval number from the timetable");
@@ -88,11 +78,12 @@ fn main() -> color_eyre::Result<()> {
 						bail!("Couldn't extract the subject from the timetable");
 					};
 
-					let (subject, group_from_subject) = if let Some((subject, group)) = subject.split_once("-") {
-						(subject, Some(group))
-					} else {
-						(subject, None)
-					};
+					let (subject, group_from_subject) =
+						if let Some((subject, group)) = subject.split_once("-") {
+							(subject, Some(group))
+						} else {
+							(subject, None)
+						};
 
 					let teacher = if let Some(teacher_alt) = p_spans.next() {
 						teacher_alt
@@ -108,41 +99,21 @@ fn main() -> color_eyre::Result<()> {
 
 					let group = if let Some(group_from_subject) = group_from_subject {
 						Some(group_from_subject.to_string())
-					} else if let Some(group_after_subject) = textutils::between_once(class, "</span>-", " ") {
+					} else if let Some(group_after_subject) =
+						textutils::between_once(class, "</span>-", " ")
+					{
 						Some(group_after_subject.to_string())
 					} else {
 						None
 					};
 
-					schedule_entry.push(Class {
-						interval_id, day,
-						subject: Some(subject.into()),
-						teacher: Some(teacher.into()),
-						room: Some(room.into()),
-						division: None,
-						group: group.clone()
-					});
-
-					let teacher_entry = teachers.entry(teacher.into()).or_default();
-
-					teacher_entry.push(Class {
-						interval_id, day,
-						subject: Some(subject.into()),
-						teacher: None,
-						room: Some(room.into()),
-						division: Some(division.into()),
-						group: group.clone()
-					});
-
-					let room_entry = rooms.entry(room.into()).or_default();
-
-					room_entry.push(Class {
-						interval_id, day,
-						subject: Some(subject.into()),
-						teacher: Some(teacher.into()),
-						room: None,
-						division: Some(division.into()),
-						group: group.clone()
+					schedule_entry.push(Lesson {
+						interval_id,
+						day,
+						subject: subject.into(),
+						teacher: teacher.into(),
+						room: room.into(),
+						group,
 					});
 				}
 			}
@@ -151,13 +122,11 @@ fn main() -> color_eyre::Result<()> {
 
 	let schedule_set = ScheduleSet {
 		intervals,
-		divisions,
-		rooms,
-		teachers,
+		schedules,
 	};
 
 	eprintln!("Serializing...");
-	serde_json::to_writer(BufWriter::new(File::create(profile.output)?), &schedule_set)?;
+	serde_json::to_writer(BufWriter::new(File::create(output)?), &schedule_set)?;
 	eprintln!("Done.");
 	Ok(())
 }
