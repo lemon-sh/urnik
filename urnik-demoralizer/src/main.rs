@@ -1,10 +1,4 @@
-use std::{
-	collections::HashMap,
-	env,
-	fs::File,
-	io::{BufWriter},
-	process,
-};
+use std::{collections::HashMap, env, fs::File, io::BufWriter, process};
 
 use color_eyre::eyre::bail;
 use models::{Lesson, ScheduleSet};
