@@ -34,7 +34,6 @@ fetch("/urnik-demoralizer/output.json")
             }
         }
 
-
         let sortNames = (obj, sort) => Object.keys(obj).sort(sort).reduce(
             (r, k) => (r[k] = obj[k], r), {}
         );
@@ -71,16 +70,13 @@ for (anchor of anchors) {
 }
 
 function convertAnchor(anchor) {
-    let params = new URL(anchor.href).searchParams;
-    let page = params.get('p');
+    let page = new URL(anchor.href).searchParams.get('p');
     if (!page) return;
 
     anchor.addEventListener("click", (e) => {
         e.preventDefault();
 
-        console.log(`?p=${page}`)
         history.pushState({page: page}, "", `?p=${encodeURIComponent(page)}`);
-
         insertTable(page);
     });
 }
@@ -102,7 +98,10 @@ function insertTable(page) {
     }
 
     let {lessons, scheduleType} = pageSearch(page);
-    if (!lessons) return;
+    if (!lessons) {
+        table.remove()
+        return;
+    };
 
     TBody.innerHTML = "";
     for (let i = 0; i <= lessons[lessons.length - 1].interval_id; i++) {
