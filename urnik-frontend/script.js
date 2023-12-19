@@ -129,7 +129,7 @@ function insertTable(page) {
             break;
         case "teachers":
             lessonContent = (l) => 
-                `${toAnchor(l.grade, 'o')}${l.group ? `-${l.group}` : ""} ${toSpan(l.subject), 'p'} ${toAnchor(l.room, 's')}<br>`;
+                `${toAnchor(l.grade, 'o')}${l.group ? `-${l.group}` : ""} ${toSpan(l.subject, 'p')} ${toAnchor(l.room, 's')}<br>`;
             break;
         case "rooms":
             lessonContent = (l) => 
