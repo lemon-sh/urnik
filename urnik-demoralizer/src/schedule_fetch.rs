@@ -25,7 +25,7 @@ impl ScheduleFetch {
 				self.pos += 1;
 				Ok(Some(response))
 			}
-			Err(ureq::Error::Status(code, _)) if code == 404 => Ok(None),
+			Err(ureq::Error::Status(404, _)) => Ok(None),
 			Err(e) => Err(e),
 		}
 	}

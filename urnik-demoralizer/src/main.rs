@@ -4,6 +4,8 @@ use color_eyre::eyre::bail;
 use models::{Lesson, ScheduleSet};
 use schedule_fetch::ScheduleFetch;
 
+use crate::models::IntervalSet;
+
 mod models;
 mod schedule_fetch;
 mod textutils;
@@ -23,8 +25,10 @@ fn main() -> color_eyre::Result<()> {
 
 	let mut schedule_fetch = ScheduleFetch::new(url);
 
-	let mut intervals: Vec<(String, String)> = Vec::new();
+	let mut intervals = IntervalSet::new();
 	let mut schedules: HashMap<String, Vec<Lesson>> = HashMap::new();
+
+	eprint!("Demoralizing... ");
 
 	while let Some(schedule) = schedule_fetch.next()? {
 		let Some(division) = textutils::between_once(&schedule, "\"tytulnapis\">", "</span>")
@@ -32,31 +36,31 @@ fn main() -> color_eyre::Result<()> {
 			bail!("Couldn't find the division name");
 		};
 		let division = division.strip_suffix('.').unwrap_or(division);
-		eprintln!("{division}");
+		eprint!("{division} ");
 		let rows = textutils::between(&schedule, "<tr>", "</tr>");
 		let Some(class_rows) = rows.get(2..rows.len() - 3) else {
 			bail!("Couldn't extract class rows from the timetable");
 		};
 		let schedule_entry = schedules.entry(division.to_string()).or_default();
 		for row in class_rows {
-			let Some(interval_number) = textutils::between_once(row, "\"nr\">", "</td>") else {
+			let Some(interval_id) = textutils::between_once(row, "\"nr\">", "</td>") else {
 				bail!("Couldn't extract the interval number from the timetable");
 			};
-			let Ok(interval_number) = interval_number.parse::<usize>() else {
-				bail!("Invalid interval number: {interval_number}");
+			let Ok(interval_id) = interval_id.parse::<usize>() else {
+				bail!("Invalid interval number: {interval_id}");
 			};
-			if interval_number == 0 {
-				bail!("Invalid interval number: {interval_number}");
-			}
-			let interval_id = interval_number - 1;
-			if interval_id == intervals.len() {
+
+			if !intervals.contains(interval_id) {
 				let Some(interval) = textutils::between_once(row, "\"g\">", "</td>") else {
 					bail!("Couldn't extract the interval from the timetable");
 				};
 				let Some((interval_start, interval_end)) = interval.split_once('-') else {
 					bail!("Invalid interval format: {interval}");
 				};
-				intervals.push((interval_start.trim().into(), interval_end.trim().into()));
+				intervals.insert(
+					interval_id,
+					(interval_start.trim().into(), interval_end.trim().into()),
+				);
 			}
 
 			for (day, hour) in textutils::between(row, "\"l\">", "</td>")
@@ -69,11 +73,12 @@ fn main() -> color_eyre::Result<()> {
 				for class in hour.split("<br>") {
 					let mut p_spans = textutils::between(class, "\"p\">", "</span>").into_iter();
 					let Some(subject) = p_spans.next() else {
-						bail!("Couldn't extract the subject from the timetable");
+						schedule_entry.push(Lesson { interval_id, day, subject: class.into(), ..Default::default() });
+						continue;
 					};
 
 					let (subject, group_from_subject) =
-						if let Some((subject, group)) = subject.split_once("-") {
+						if let Some((subject, group)) = subject.split_once('-') {
 							(subject, Some(group))
 						} else {
 							(subject, None)
@@ -93,20 +98,16 @@ fn main() -> color_eyre::Result<()> {
 
 					let group = if let Some(group_from_subject) = group_from_subject {
 						Some(group_from_subject.to_string())
-					} else if let Some(group_after_subject) =
-						textutils::between_once(class, "</span>-", " ")
-					{
-						Some(group_after_subject.to_string())
 					} else {
-						None
+						textutils::between_once(class, "</span>-", " ").map(ToString::to_string)
 					};
 
 					schedule_entry.push(Lesson {
 						interval_id,
 						day,
 						subject: subject.into(),
-						teacher: teacher.into(),
-						room: room.into(),
+						teacher: Some(teacher.into()),
+						room: Some(room.into()),
 						group,
 					});
 				}
@@ -119,7 +120,7 @@ fn main() -> color_eyre::Result<()> {
 		schedules,
 	};
 
-	eprintln!("Serializing...");
+	eprintln!("\nSerializing...");
 	serde_json::to_writer(BufWriter::new(File::create(output)?), &schedule_set)?;
 	eprintln!("Done.");
 	Ok(())
