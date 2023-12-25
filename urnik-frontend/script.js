@@ -1,10 +1,15 @@
-let intervals, schedules;
+let intervals, schedules, numberOffset = 0;
 console.time("fetch");
 fetch("/urnik-demoralizer/output.json")
     .then(response => response.json())
     .then(json => {
-        intervals = json.intervals;
+        intervals = json.intervals;        
         schedules = json.schedules;
+
+        if (!intervals[0]) {
+            numberOffset = 1;
+            intervals.shift();
+        }
 
         schedules = { "grades": schedules }
         schedules.teachers = {}
@@ -115,7 +120,7 @@ function insertTable(page) {
             newRow.insertCell();
         }
 
-        newRow.cells[0].textContent = i + 1;
+        newRow.cells[0].textContent = i + numberOffset;
         newRow.cells[1].textContent = `${intervals[i][0]} - ${intervals[i][1]}`;
     }
 
