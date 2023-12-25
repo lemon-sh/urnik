@@ -28,7 +28,7 @@ fn main() -> color_eyre::Result<()> {
 	let mut intervals = IntervalSet::new();
 	let mut schedules: HashMap<String, Vec<Lesson>> = HashMap::new();
 
-	eprint!("Demoralizing... ");
+	eprint!("Demoralizing... *");
 
 	while let Some(schedule) = schedule_fetch.next()? {
 		let Some(division) = textutils::between_once(&schedule, "\"tytulnapis\">", "</span>")
@@ -113,7 +113,9 @@ fn main() -> color_eyre::Result<()> {
 				}
 			}
 		}
+		eprint!("*")
 	}
+	eprint!("end");
 
 	let schedule_set = ScheduleSet {
 		intervals,
