@@ -37,11 +37,16 @@ fn main() -> color_eyre::Result<()> {
 		};
 		let division = division.strip_suffix('.').unwrap_or(division);
 		eprint!("{division} ");
-		let rows = textutils::between(&schedule, "<tr>", "</tr>");
-		let Some(class_rows) = rows.get(2..rows.len() - 3) else {
-			bail!("Couldn't extract class rows from the timetable");
+
+		let Some(class_table) = textutils::between_once(&schedule, "class=\"tabela\">", "</table>") else {
+			bail!("Coulnd't find the main class table");
 		};
+		let class_rows = textutils::between(class_table, "<tr>", "</tr>");
+		// first row is the table header, we don't want that
+		let class_rows = class_rows.into_iter().skip(1);
+
 		let schedule_entry = schedules.entry(division.to_string()).or_default();
+
 		for row in class_rows {
 			let Some(interval_id) = textutils::between_once(row, "\"nr\">", "</td>") else {
 				bail!("Couldn't extract the interval number from the timetable");

@@ -1,3 +1,4 @@
+// TODO: make this an iterator
 pub fn between<'a>(input: &'a str, begin: &str, end: &str) -> Vec<&'a str> {
 	let mut matches = Vec::new();
 	let mut pos = 0;
