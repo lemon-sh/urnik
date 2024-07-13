@@ -17,7 +17,7 @@ function modifyTable(table: HTMLTableElement, schedule: Schedule, intervals: Int
     let tBody = table.tBodies[0];
     tBody.innerHTML = '';
 
-    for (let i = 0; i <= schedule[schedule.length - 1].interval_id + 1; i++) {
+    for (let i = 0; i < schedule[schedule.length - 1].interval_id + 1; i++) {
         const newRow = tBody.insertRow();
 
         const th = document.createElement("th");
@@ -32,28 +32,28 @@ function modifyTable(table: HTMLTableElement, schedule: Schedule, intervals: Int
     }
 
     let lessonContent: (lesson: Lesson) => string;
-    const toSpan = (str: string, className: string) => `<span class="${className}">${str}</span>`;
-    const toAnchor = (type: string, str: string, className: string) => `<a href="#/${type}/${encodeURIComponent(str)} class="${className}">${str}</a>`;
+    const toSpan = (str: string, type: string) => `<span class="${type}">${str}</span>`;
+    const toAnchor = (str: string, type: string) => `<a href="#/${type}/${encodeURIComponent(str)}" class="${type}">${str}</a>`;
 
     let lesson = schedule[0]
     if (isDivision(lesson)) {
         lessonContent = (l) => 
             `${toSpan(l.subject, 'p')} 
             ${l.group ? `-${l.group}` : ""} 
-            ${toAnchor('o', (l as Division).room, 's')} 
-            ${toAnchor('o', (l as Division).teacher, 'n')}`;
+            ${toAnchor((l as Division).room, 's')} 
+            ${toAnchor((l as Division).teacher, 'n')}<br>`;
     } else if (isTeacher(lesson)) {
-        lessonContent = (l) => 
-            `${toAnchor('n', (l as Teacher).division, 'o')} 
+        lessonContent = (l) =>
+            `${toAnchor((l as Teacher).division, 'o')} 
             ${l.group ? `-${l.group}` : ""} 
             ${toSpan(l.subject, 'p')} 
-            ${toAnchor('n', (l as Teacher).room, 's')}`;
+            ${toAnchor((l as Teacher).room, 's')}<br>`;
     } else {
         lessonContent = (l) => 
-            `${toAnchor('s', (l as Room).division, 'o')}
+            `${toAnchor((l as Room).division, 'o')} 
             ${l.group ? `-${l.group}` : ""} 
             ${toSpan(l.subject, 'p')} 
-            ${toAnchor('s', (l as Room).teacher, 's')}`;
+            ${toAnchor((l as Room).teacher, 'n')}<br>`;
     } 
 
     for (lesson of schedule) {
