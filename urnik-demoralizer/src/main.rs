@@ -73,7 +73,12 @@ fn main() -> color_eyre::Result<()> {
 				for class in hour.split("<br>") {
 					let mut p_spans = textutils::between(class, "\"p\">", "</span>").into_iter();
 					let Some(subject) = p_spans.next() else {
-						schedule_entry.push(Lesson { interval_id, day, subject: class.into(), ..Default::default() });
+						schedule_entry.push(Lesson {
+							interval_id,
+							day,
+							subject: class.into(),
+							..Default::default()
+						});
 						continue;
 					};
 
@@ -115,15 +120,11 @@ fn main() -> color_eyre::Result<()> {
 		}
 		eprint!("*")
 	}
-	eprint!("end");
+	eprintln!(".\nSerializing...");
 
-	let schedule_set = ScheduleSet {
-		intervals,
-		schedules,
-	};
-
-	eprintln!("\nSerializing...");
+	let schedule_set = ScheduleSet::new_trimmed(&intervals, schedules);
 	serde_json::to_writer(BufWriter::new(File::create(output)?), &schedule_set)?;
+
 	eprintln!("Done.");
 	Ok(())
 }
