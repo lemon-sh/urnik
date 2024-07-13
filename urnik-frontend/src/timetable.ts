@@ -1,64 +1,65 @@
-class Timetable {
-    intervals: Interval[];
-    schedules: {
-        grades: { [grade: string]: Grade[] },
-        teachers: { [teacher: string]: Teacher[] },
-        rooms: { [room: string]: Room[] },
+async function createTimetable(input?: URL | Timetable): Promise<Timetable> {
+    const timetable: Timetable = {
+        intervals: [],
+        schedules: { divisions: {}, teachers: {}, rooms: {} }
+    };
+
+    if (!input) return timetable;
+
+    if (!(input instanceof URL)) {
+        timetable.intervals = input.intervals;
+        timetable.schedules = input.schedules;
+        return timetable;
     }
 
-    constructor(url?: URL) {
-        this.intervals = [];
-        this.schedules = { grades: {}, teachers: {}, rooms: {} };
+    const res = await fetch(input);
+    const json = await res.json();
 
-        if (url) {
-            this.setFrom(url);
+    timetable.intervals = json.intervals;
+    timetable.schedules.divisions = json.schedules;
+
+    for (const division in timetable.schedules.divisions) {
+        for (const lesson of timetable.schedules.divisions[division]) {
+            timetable.schedules.teachers[lesson.teacher] ??= [];
+            timetable.schedules.teachers[lesson.teacher].push({
+                "interval_id": lesson.interval_id,
+                "day": lesson.day,
+                "subject": lesson.subject,
+                "group": lesson.group,
+                "room": lesson.room,
+                "division": division,
+            });
+
+            timetable.schedules.rooms[lesson.room] ??= [];
+            timetable.schedules.rooms[lesson.room].push({
+                "interval_id": lesson.interval_id,
+                "day": lesson.day,
+                "subject": lesson.subject,
+                "group": lesson.group,
+                "teacher": lesson.teacher,
+                "division": division,
+            });
         }
     }
 
-    async setFrom(source: URL | Timetable) {
-        if (source instanceof Timetable) {
-            this.intervals = source.intervals;
-            this.schedules = source.schedules;
-            return;
-        }
-
-        const res = await fetch(source);
-        const json = await res.json();
-
-        this.intervals = json.intervals;
-        this.schedules.grades = json.schedules;
-
-        for (const grade in this.schedules.grades) {
-            for (const lesson of this.schedules.grades[grade]) {
-                this.schedules.teachers[lesson.teacher] ??= [];
-                this.schedules.teachers[lesson.teacher].push({
-                    "interval_id": lesson.interval_id,
-                    "day": lesson.day,
-                    "subject": lesson.subject,
-                    "group": lesson.group,
-                    "room": lesson.room,
-                    "grade": grade,
-                });
-
-                this.schedules.rooms[lesson.room] ??= [];
-                this.schedules.rooms[lesson.room].push({
-                    "interval_id": lesson.interval_id,
-                    "day": lesson.day,
-                    "subject": lesson.subject,
-                    "group": lesson.group,
-                    "teacher": lesson.teacher,
-                    "grade": grade,
-                });
-            }
-        }
-        
-        const sortTime = <T extends Schedule>(a: T, b: T) => a.interval_id - b.interval_id || a.day - b.day;
-        for (const teacher in this.schedules.teachers) {
-            this.schedules.teachers[teacher].sort(sortTime)
-        }
-
-        for (const room in this.schedules.rooms) {
-            this.schedules.rooms[room].sort(sortTime)
-        } 
+    const sortTime = <T extends ILesson>(a: T, b: T) => a.interval_id - b.interval_id || a.day - b.day;
+    for (const teacher in timetable.schedules.teachers) {
+        timetable.schedules.teachers[teacher].sort(sortTime)
     }
+
+    for (const room in timetable.schedules.rooms) {
+        timetable.schedules.rooms[room].sort(sortTime)
+    }
+
+    return timetable;
+}
+
+function getSchedule(timetable: Timetable, scheduleTypeKey: ScheduleTypeKey, scheduleId: string): Schedule {
+    const scheduleType = ScheduleType[scheduleTypeKey] as keyof typeof timetable.schedules;
+    const schedule = timetable.schedules[scheduleType][scheduleId]
+    if (schedule) {
+        return schedule;
+    }
+
+    throw new Error(`ScheduleId ${scheduleId} is incorrect`);
 }
