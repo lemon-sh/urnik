@@ -1,0 +1,14 @@
+{
+    "$schema": "https://swc.rs/schema.json",
+    "jsc": {
+        "parser": {
+            "syntax": "typescript"
+        },
+        "minify": {
+            "mangle": true,
+            "compress": true
+        },
+        "target": "esnext"
+    },
+    "minify": true
+}
