@@ -54,12 +54,12 @@ async function createTimetable(input?: URL | Timetable): Promise<Timetable> {
     return timetable;
 }
 
-function getSchedule(timetable: Timetable, scheduleTypeKey: ScheduleTypeKey, scheduleId: string): Schedule {
+function getSchedule(timetable: Timetable, scheduleTypeKey: ScheduleTypeKey, scheduleId: string): Schedule | undefined {
     const scheduleType = ScheduleType[scheduleTypeKey] as keyof typeof timetable.schedules;
     const schedule = timetable.schedules[scheduleType][scheduleId]
     if (schedule) {
         return schedule;
     }
 
-    throw new Error(`ScheduleId ${scheduleId} is incorrect`);
+    return schedule;
 }

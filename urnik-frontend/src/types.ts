@@ -58,8 +58,6 @@ const ScheduleType: Record<ScheduleTypeKey, string> = {
     s: "rooms"
 } as const;
 
-function assertScheduleTypeKey(key: string): asserts key is ScheduleTypeKey {
-    if (!ScheduleTypeKeys.includes(key as ScheduleTypeKey)) {
-        throw new Error(`${key} is not a valid ScheduleTypeKey`);
-    }
+function isScheduleTypeKey(key: string): key is ScheduleTypeKey {
+    return ScheduleTypeKeys.includes(key as ScheduleTypeKey)
 }
