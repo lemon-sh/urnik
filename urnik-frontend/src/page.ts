@@ -1,6 +1,12 @@
-type Path = ScheduleTypeKey | "stats" | "findfreeroom";
+const Paths = ["stats", "findfreeroom"] as const;
+type ToolPath = typeof Paths[number];
+type Path = ScheduleTypeKey | ToolPath;
 
-function SetPage(timetable: Timetable, path: Exclude<Path, ScheduleTypeKey>): void;
+function isToolPath(path: string): path is ToolPath {
+    return Paths.includes(path as ToolPath);
+}
+
+function SetPage(timetable: Timetable, path: ToolPath): void;
 function SetPage(timetable: Timetable, path: ScheduleTypeKey, id: string, table: HTMLTableElement): void;
 function SetPage(timetable: Timetable, path: Path, id?: string, table?: HTMLTableElement): void {
     switch (path) {
@@ -9,8 +15,13 @@ function SetPage(timetable: Timetable, path: Path, id?: string, table?: HTMLTabl
         case "s":
             if (!id) throw new Error("id is empty");
             if (!table) throw new Error("table is empty");
-            
+
             const schedule = getSchedule(timetable, path, id);
+            if (!schedule) {
+                resetHash(`id ${id} is incorrect`);
+                return;
+            }
+
             modifyTable(table, schedule, timetable.intervals);
             document.body.appendChild(table);
             break;
@@ -21,5 +32,13 @@ function SetPage(timetable: Timetable, path: Path, id?: string, table?: HTMLTabl
         default:
             const _exhaustiveCheck: never = path;
             return _exhaustiveCheck;
+    }
+}
+
+function resetHash(error?: string) {
+    location.hash = '/';
+
+    if (error) {
+        console.error(error);
     }
 }
