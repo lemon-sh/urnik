@@ -1,6 +1,8 @@
+import { Schedule, Interval, Lesson, isDivision, Division, isTeacher, Teacher, Room } from "./types";
+
 const tableHeaders = ["Nr", "Godz", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"] as const;
 
-function createTable() {
+export function createTable() {
     const table = document.createElement("table");
     const tHead = table.createTHead();
     for (const tableHeader of tableHeaders) {
@@ -13,7 +15,7 @@ function createTable() {
     return table;
 }
 
-function modifyTable(table: HTMLTableElement, schedule: Schedule, intervals: Interval[]): void {
+export function modifyTable(table: HTMLTableElement, schedule: Schedule, intervals: Interval[]): void {
     let tBody = table.tBodies[0];
     tBody.innerHTML = '';
 

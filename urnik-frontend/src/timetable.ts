@@ -1,4 +1,6 @@
-async function createTimetable(input?: URL | Timetable): Promise<Timetable> {
+import { Timetable, ScheduleTypeKey, Schedule, ScheduleType, ILesson } from "./types";
+
+export async function createTimetable(input?: URL | Timetable): Promise<Timetable> {
     const timetable: Timetable = {
         intervals: [],
         schedules: { divisions: {}, teachers: {}, rooms: {} }
@@ -54,7 +56,7 @@ async function createTimetable(input?: URL | Timetable): Promise<Timetable> {
     return timetable;
 }
 
-function getSchedule(timetable: Timetable, scheduleTypeKey: ScheduleTypeKey, scheduleId: string): Schedule | undefined {
+export function getSchedule(timetable: Timetable, scheduleTypeKey: ScheduleTypeKey, scheduleId: string): Schedule | undefined {
     const scheduleType = ScheduleType[scheduleTypeKey] as keyof typeof timetable.schedules;
     const schedule = timetable.schedules[scheduleType][scheduleId]
     if (schedule) {
