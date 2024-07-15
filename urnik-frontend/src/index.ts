@@ -2,6 +2,7 @@ import { resetHash, SetPage } from "./page";
 import { createTable } from "./table";
 import { createTimetable } from "./timetable";
 import { isToolPath, isScheduleTypeKey } from "./types";
+import './style.scss';
 
 (async () => {
     const timetable = await createTimetable(new URL("urnik-demoralizer/output.json", location.origin));
