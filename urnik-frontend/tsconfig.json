@@ -1,7 +1,9 @@
 {
     "compilerOptions": {
-        "noImplicitAny": true,
-        "strictNullChecks": true,
+        "strict": true,
         "target": "esnext",
+        "jsx": "react",
+        "jsxFactory": "jsx",
+        "jsxFragmentFactory": "jsx.Fragment",
     }
 }
