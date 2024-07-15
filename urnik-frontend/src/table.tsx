@@ -44,23 +44,23 @@ export function modifyTable(table: HTMLTableElement, schedule: Schedule, interva
             {toSpan(l.subject, 'p')}
             {l.group ? `-${l.group}` : ""}&nbsp;
             {toAnchor((l as Division).room, 's')}&nbsp;
-            {toAnchor((l as Division).teacher, 'n')}<br/>
+            {toAnchor((l as Division).teacher, 'n')}<br />
         </>;
     } else if (isTeacher(lesson)) {
         lessonContent = (l) => <>
             {toAnchor((l as Teacher).division, 'o')}
             {l.group ? `-${l.group}` : ""}&nbsp;
             {toSpan(l.subject, 'p')}&nbsp;
-            {toAnchor((l as Teacher).room, 's')}<br/>
+            {toAnchor((l as Teacher).room, 's')}<br />
         </>;
     } else {
         lessonContent = (l) => <>
             {toAnchor((l as Room).division, 'o')}
             {l.group ? `-${l.group}` : ""}&nbsp;
             {toSpan(l.subject, 'p')}&nbsp;
-            {toAnchor((l as Room).teacher, 'n')}<br/>;
+            {toAnchor((l as Room).teacher, 'n')}<br />;
         </>;
-    } 
+    }
 
     for (lesson of schedule) {
         tBody.rows[lesson.interval_id].cells[lesson.day + 2].appendChild(lessonContent(lesson));

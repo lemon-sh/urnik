@@ -4,6 +4,6 @@
         "target": "esnext",
         "jsx": "react",
         "jsxFactory": "jsx",
-        "jsxFragmentFactory": "jsx.Fragment",
+        "jsxFragmentFactory": "jsx.Fragment"
     }
 }

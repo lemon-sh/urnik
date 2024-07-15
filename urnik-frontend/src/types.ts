@@ -71,5 +71,5 @@ export function isToolPath(path: string): path is ToolPath {
 
 export type Path = ScheduleTypeKey | ToolPath;
 export function isPath(path: string): path is Path {
-    return isScheduleTypeKey(path) && isToolPath(path); 
+    return isScheduleTypeKey(path) && isToolPath(path);
 }

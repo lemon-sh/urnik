@@ -1,23 +1,19 @@
-/// <reference lib="DOM" />
+// source: https://stackoverflow.com/a/68238924
 
 declare namespace JSX {
-   // The return type of our JSX Factory
-   type Element = HTMLElement;
+    type Element = HTMLElement;
 
-   // IntrinsicElementMap grabs all the standard HTML tags in the TS DOM lib.
-   interface IntrinsicElements extends IntrinsicElementMap { }
+    interface IntrinsicElements extends IntrinsicElementMap { }
 
-   // The following are custom types, not part of TS's known JSX namespace:
-   type IntrinsicElementMap = {
-       [K in keyof HTMLElementTagNameMap]: {
-           [k: string]: any
-       }
-   }
+    type IntrinsicElementMap = {
+        [K in keyof HTMLElementTagNameMap]: {
+            [k: string]: any
+        }
+    }
 
-   type Tag = keyof JSX.IntrinsicElements;
+    type Tag = keyof JSX.IntrinsicElements;
 
-   interface Component {
-       (properties?: { [key: string]: any }, children?: Node[]): Node
-   }
+    interface Component {
+        (properties?: { [key: string]: any }, children?: Node[]): Node
+    }
 }
-
