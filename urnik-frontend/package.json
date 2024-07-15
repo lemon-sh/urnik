@@ -2,6 +2,7 @@
 	"name": "urnik-frontend",
 	"version": "0.1.0",
 	"private": true,
+	"sideEffects": false,
 	"devDependencies": {
 		"ts-loader": "^9.5.1",
 		"typescript": "^5.5.3",
