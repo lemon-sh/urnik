@@ -1,11 +1,13 @@
-use std::{collections::HashMap, env, fs::File, io::BufWriter, process};
+use std::{collections::HashMap, fs::File, io::BufWriter};
 
 use color_eyre::eyre::bail;
+use config::Config;
 use models::{Lesson, ScheduleSet};
 use schedule_fetch::ScheduleFetch;
 
 use crate::models::IntervalSet;
 
+mod config;
 mod models;
 mod schedule_fetch;
 mod textutils;
@@ -13,17 +15,9 @@ mod textutils;
 fn main() -> color_eyre::Result<()> {
 	color_eyre::install()?;
 
-	let mut args = env::args();
-	let executable_name = args.next().unwrap_or_default();
-	let url = args.next();
-	let output = args.next();
+	let cfg = Config::from_cli();
 
-	let (Some(url), Some(output)) = (url, output) else {
-		eprintln!("Usage: {executable_name} <optivum url> <output json file>");
-		process::exit(1);
-	};
-
-	let mut schedule_fetch = ScheduleFetch::new(url);
+	let mut schedule_fetch = ScheduleFetch::new(cfg.url);
 
 	let mut intervals = IntervalSet::new();
 	let mut schedules: HashMap<String, Vec<Lesson>> = HashMap::new();
@@ -122,8 +116,8 @@ fn main() -> color_eyre::Result<()> {
 	}
 	eprintln!(".\nSerializing...");
 
-	let schedule_set = ScheduleSet::new_trimmed(&intervals, schedules);
-	serde_json::to_writer(BufWriter::new(File::create(output)?), &schedule_set)?;
+	let schedule_set = ScheduleSet::new_normalized(&intervals, schedules, cfg.normalize_intervals);
+	serde_json::to_writer(BufWriter::new(File::create(cfg.output)?), &schedule_set)?;
 
 	eprintln!("Done.");
 	Ok(())

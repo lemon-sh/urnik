@@ -33,37 +33,49 @@ impl IntervalSet {
 		matches!(self.0.get(id), Some(Some(_)))
 	}
 
-	pub fn insert(&mut self, id: usize, range: (String, String)) {
+	pub fn insert(&mut self, id: usize, time_range: (String, String)) {
 		if id >= self.0.len() {
 			self.0.resize(id + 1, None);
 		}
-		self.0[id] = Some(range);
+		self.0[id] = Some(time_range);
 	}
 
-	fn offset(&self) -> usize {
-		let mut offset = 0;
+	/// Gets the smallest interval ID
+	fn min(&self) -> usize {
+		let mut min = 0;
 		for interval in &self.0 {
 			if interval.is_some() {
 				break;
 			}
-			offset += 1
+			min += 1
 		}
-		offset
+		min
 	}
 }
 
 impl<'a> ScheduleSet<'a> {
-	pub fn new_trimmed(
+	/// Creates a new ScheduleSet
+	///
+	/// `normalize` - normalize intervals (i.e. always starting from 0)
+	pub fn new_normalized(
 		intervals: &'a IntervalSet,
 		mut schedules: HashMap<String, Vec<Lesson>>,
+		normalize: bool,
 	) -> Self {
-		let interval_offset = intervals.offset();
-		for lesson in schedules.values_mut().flatten() {
-			lesson.interval_id -= interval_offset;
-		}
-		Self {
-			intervals: &intervals.0[interval_offset..],
-			schedules,
+		if normalize {
+			let interval_offset = intervals.min();
+			for lesson in schedules.values_mut().flatten() {
+				lesson.interval_id -= interval_offset;
+			}
+			Self {
+				intervals: &intervals.0[interval_offset..],
+				schedules,
+			}
+		} else {
+			Self {
+				intervals: &intervals.0,
+				schedules,
+			}
 		}
 	}
 }

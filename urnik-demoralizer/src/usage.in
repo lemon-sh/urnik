@@ -1,0 +1,3 @@
+Usage: urnik-demoralizer [-d] <optivum url> <output json file>
+
+    -d  don't normalize intervals (allow not starting from zero)
