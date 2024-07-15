@@ -1,11 +1,7 @@
 {
     "compilerOptions": {
-        "outFile": "script.js",
         "noImplicitAny": true,
         "strictNullChecks": true,
         "target": "esnext",
-    },
-    "include": [
-        "src",
-    ],
+    }
 }
