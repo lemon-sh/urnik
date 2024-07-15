@@ -1,14 +1,10 @@
-const Paths = ["stats", "findfreeroom"] as const;
-type ToolPath = typeof Paths[number];
-type Path = ScheduleTypeKey | ToolPath;
+import { modifyTable } from "./table";
+import { getSchedule } from "./timetable";
+import { Timetable, ToolPath, ScheduleTypeKey, Path } from "./types";
 
-function isToolPath(path: string): path is ToolPath {
-    return Paths.includes(path as ToolPath);
-}
-
-function SetPage(timetable: Timetable, path: ToolPath): void;
-function SetPage(timetable: Timetable, path: ScheduleTypeKey, id: string, table: HTMLTableElement): void;
-function SetPage(timetable: Timetable, path: Path, id?: string, table?: HTMLTableElement): void {
+export function SetPage(timetable: Timetable, path: ToolPath): void;
+export function SetPage(timetable: Timetable, path: ScheduleTypeKey, id: string, table: HTMLTableElement): void;
+export function SetPage(timetable: Timetable, path: Path, id?: string, table?: HTMLTableElement): void {
     switch (path) {
         case "o":
         case "n":
@@ -35,7 +31,7 @@ function SetPage(timetable: Timetable, path: Path, id?: string, table?: HTMLTabl
     }
 }
 
-function resetHash(error?: string) {
+export function resetHash(error?: string) {
     location.hash = '/';
 
     if (error) {
