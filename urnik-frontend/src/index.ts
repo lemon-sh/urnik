@@ -5,7 +5,7 @@ import { isToolPath, isScheduleTypeKey } from "./types";
 import './style.scss';
 
 (async () => {
-    const timetable = await createTimetable(new URL("urnik.json", location.origin));
+    const timetable = await createTimetable(new URL("./urnik.json", location.origin));
     const table = createTable();
 
     const onHashChangeEvent = () => {
