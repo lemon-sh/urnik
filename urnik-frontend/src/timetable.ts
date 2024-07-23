@@ -57,11 +57,8 @@ export async function createTimetable(input?: URL | Timetable): Promise<Timetabl
 }
 
 export function getSchedule(timetable: Timetable, scheduleTypeKey: ScheduleTypeKey, scheduleId: string): Schedule | undefined {
-    const scheduleType = ScheduleType[scheduleTypeKey] as keyof typeof timetable.schedules;
-    const schedule = timetable.schedules[scheduleType][scheduleId]
-    if (schedule) {
-        return schedule;
-    }
+    const scheduleType = ScheduleType[scheduleTypeKey];
+    const schedule = timetable.schedules[scheduleType][scheduleId];
 
     return schedule;
 }

@@ -1,3 +1,5 @@
+import { JSXInternal } from "preact/src/jsx";
+
 export type Interval = readonly [string, string];
 
 export interface ILesson {
@@ -53,23 +55,32 @@ export const ScheduleTypeKeys = ['o', 'n', 's'] as const;
 export type ScheduleTypeKey = typeof ScheduleTypeKeys[number];
 
 export function isScheduleTypeKey(key: string): key is ScheduleTypeKey {
-    return ScheduleTypeKeys.includes(key as ScheduleTypeKey)
+    return ScheduleTypeKeys.includes(key)
 }
 
-export const ScheduleType: Record<ScheduleTypeKey, string> = {
+export const ScheduleType: Record<ScheduleTypeKey, keyof Timetable["schedules"]> = {
     o: "divisions",
     n: "teachers",
     s: "rooms"
 } as const;
 
-export const ToolPaths = ["stats", "findfreeroom"] as const;
+export const ToolPaths = ["timetable", "stats", "findfreeroom"] as const;
 export type ToolPath = typeof ToolPaths[number];
 
 export function isToolPath(path: string): path is ToolPath {
-    return ToolPaths.includes(path as ToolPath);
+    return ToolPaths.includes(path);
 }
 
 export type Path = ScheduleTypeKey | ToolPath;
 export function isPath(path: string): path is Path {
-    return isScheduleTypeKey(path) && isToolPath(path);
+    return isScheduleTypeKey(path) || isToolPath(path);
+}
+
+export type JSXElement = JSXInternal.Element;
+
+declare global {
+    interface ReadonlyArray<T> {
+        // source: https://github.com/microsoft/TypeScript/issues/31018#issuecomment-1293212735
+        includes(searchElement: unknown, fromIndex?: number): searchElement is T;
+    }    
 }
