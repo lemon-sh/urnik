@@ -10,17 +10,17 @@ export interface ILesson {
 }
 
 export type Division = Readonly<ILesson & {
-    room: string
+    room: string,
     teacher: string,
 }>
 
 export type Teacher = Readonly<ILesson & {
-    room: string
+    room: string,
     division: string,
 }>
 
 export type Room = Readonly<ILesson & {
-    teacher: string
+    teacher: string,
     division: string,
 }>
 
@@ -82,5 +82,5 @@ declare global {
     interface ReadonlyArray<T> {
         // source: https://github.com/microsoft/TypeScript/issues/31018#issuecomment-1293212735
         includes(searchElement: unknown, fromIndex?: number): searchElement is T;
-    }    
+    }
 }

@@ -3,13 +3,13 @@ import { createTimetable } from "./timetable";
 import { isToolPath, isScheduleTypeKey } from "./types";
 import './style.scss';
 
-(async() => {
+(async () => {
     const timetable = await createTimetable(new URL("./urnik.json", location.origin + location.pathname));
 
     const onHashChangeEvent = () => {
         const hash = location.hash.split('/')
             .filter(i => i) // <= removes empty strings
-            .map(i => decodeURIComponent(i)); 
+            .map(i => decodeURIComponent(i));
 
         if (hash.length === 2 && isToolPath(hash[1])) {
             SetPage(timetable, hash[1]);

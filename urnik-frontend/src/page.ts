@@ -10,7 +10,7 @@ export function SetPage(timetable: Timetable, path: Path, id?: string): void {
 
     if (ScheduleTypeKeys.includes(path)) {
         if (!id) throw new Error("id is empty");
-    
+
         const schedule = getSchedule(timetable, path, id);
         if (!schedule) {
             resetHash(`id ${id} is incorrect`);
@@ -24,7 +24,7 @@ export function SetPage(timetable: Timetable, path: Path, id?: string): void {
         switch (path) {
             case "timetable":
                 const schedule = localStorage.getItem("schedule");
-                
+
                 if (schedule) {
                     location.hash = schedule;
                     break;

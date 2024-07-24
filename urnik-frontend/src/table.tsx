@@ -53,12 +53,12 @@ function createTableBody(schedule: Schedule, intervals: Interval[]) {
         timetable[lesson.interval_id][lesson.day] = lessonContent(lesson)
     }
 
-    return timetable.map((timetableRow, i) => 
+    return timetable.map((timetableRow, i) =>
         <tr>
             <th scope="row">{i + 1}</th>
             <th scope="row">{intervals[i][0]} - {intervals[i][0]}</th>
 
-            {timetableRow.map(lesson => 
+            {timetableRow.map(lesson =>
                 <td>{lesson}</td>
             )}
         </tr>
