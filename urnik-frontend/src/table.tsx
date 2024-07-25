@@ -1,4 +1,4 @@
-import { Schedule, Interval, Lesson, isDivision, Division, isTeacher, Teacher, Room, ScheduleTypeKey, JSXElement } from "./types";
+import { Schedule, Interval, Lesson, isDivision, Division, isTeacher, Teacher, Room, SchedulePath, JSXElement } from "./types";
 
 const tableHeaders = ["Nr", "Godz", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"] as const;
 
@@ -19,8 +19,8 @@ export function Table(schedule: Schedule, intervals: Interval[]) {
 
 function createTableBody(schedule: Schedule, intervals: Interval[]) {
     let lessonContent: (lesson: Lesson) => JSXElement;
-    const Anchor = (props: { type: ScheduleTypeKey, children: string }) =>
-        <a href={`#/${props.type}/${encodeURIComponent(props.children)}`} class={props.type}>{props.children}</a>;
+    const Anchor = (props: { type: SchedulePath, children: string }) =>
+        <a href={`#/${props.type}/${props.children}`} class={props.type}>{props.children}</a>;
 
     const lesson = schedule[0]
     if (isDivision(lesson)) {
@@ -47,7 +47,7 @@ function createTableBody(schedule: Schedule, intervals: Interval[]) {
     }
 
     const maxIntervalId = schedule[schedule.length - 1].interval_id;
-    const timetable: JSXElement[][] = Array.from(Array(maxIntervalId + 1), () => Array(5));
+    const timetable: JSXElement[][] = Array.from(Array(maxIntervalId + 1), () => Array(5).fill(null));
 
     for (const lesson of schedule) {
         timetable[lesson.interval_id][lesson.day] = lessonContent(lesson)
@@ -56,7 +56,7 @@ function createTableBody(schedule: Schedule, intervals: Interval[]) {
     return timetable.map((timetableRow, i) =>
         <tr>
             <th scope="row">{i + 1}</th>
-            <th scope="row">{intervals[i][0]} - {intervals[i][0]}</th>
+            <th scope="row">{intervals[i][0]} - {intervals[i][1]}</th>
 
             {timetableRow.map(lesson =>
                 <td>{lesson}</td>

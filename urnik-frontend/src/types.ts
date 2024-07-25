@@ -51,29 +51,35 @@ export type Timetable = {
     }
 }
 
-export const ScheduleTypeKeys = ['o', 'n', 's'] as const;
-export type ScheduleTypeKey = typeof ScheduleTypeKeys[number];
+export const schedulePaths = ['o', 'n', 's'] as const;
+export type SchedulePath = typeof schedulePaths[number];
 
-export function isScheduleTypeKey(key: string): key is ScheduleTypeKey {
-    return ScheduleTypeKeys.includes(key)
+export function isSchedulePath(key: string): key is SchedulePath {
+    return schedulePaths.includes(key)
 }
 
-export const ScheduleType: Record<ScheduleTypeKey, keyof Timetable["schedules"]> = {
+export const scheduleNames: Record<SchedulePath, keyof Timetable["schedules"]> = {
     o: "divisions",
     n: "teachers",
     s: "rooms"
 } as const;
 
-export const ToolPaths = ["timetable", "stats", "findfreeroom"] as const;
-export type ToolPath = typeof ToolPaths[number];
+export const toolPaths = ["", "stats", "findfreeroom"] as const;
+export type ToolPath = typeof toolPaths[number];
 
 export function isToolPath(path: string): path is ToolPath {
-    return ToolPaths.includes(path);
+    return toolPaths.includes(path);
 }
 
-export type Path = ScheduleTypeKey | ToolPath;
+export const toolNames: Record<ToolPath, string> = {
+    "": "plan",
+    "stats": "statystyki",
+    "findfreeroom": "wolny pokój"
+} as const;
+
+export type Path = SchedulePath | ToolPath;
 export function isPath(path: string): path is Path {
-    return isScheduleTypeKey(path) || isToolPath(path);
+    return isSchedulePath(path) || isToolPath(path);
 }
 
 export type JSXElement = JSXInternal.Element;

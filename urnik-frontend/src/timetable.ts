@@ -1,4 +1,4 @@
-import { Timetable, ScheduleTypeKey, Schedule, ScheduleType, ILesson } from "./types";
+import { Timetable, SchedulePath, Schedule, scheduleNames, ILesson } from "./types";
 
 export async function createTimetable(input?: URL | Timetable): Promise<Timetable> {
     const timetable: Timetable = {
@@ -56,9 +56,9 @@ export async function createTimetable(input?: URL | Timetable): Promise<Timetabl
     return timetable;
 }
 
-export function getSchedule(timetable: Timetable, scheduleTypeKey: ScheduleTypeKey, scheduleId: string): Schedule | undefined {
-    const scheduleType = ScheduleType[scheduleTypeKey];
-    const schedule = timetable.schedules[scheduleType][scheduleId];
+export function getSchedule(timetable: Timetable, schedulePath: SchedulePath, scheduleId: string): Schedule | undefined {
+    const scheduleName = scheduleNames[schedulePath];
+    const schedule = timetable.schedules[scheduleName][scheduleId];
 
     return schedule;
 }
