@@ -50,8 +50,8 @@ export function SetPage(timetable: Timetable, path: Path, id?: string): void {
         <nav>
             {toolPaths.map((ToolPath) => 
                 ToolPath === toolName 
-                    ? <span>{toolNames[ToolPath]}</span>
-                    : <a href={`#/${ToolPath}`} >{toolNames[ToolPath]}</a>
+                    ? <span key={ToolPath}>{toolNames[ToolPath]}</span>
+                    : <a key={ToolPath} href={`#/${ToolPath}`} >{toolNames[ToolPath]}</a>
             )}
         </nav>
     </>, document.body);
