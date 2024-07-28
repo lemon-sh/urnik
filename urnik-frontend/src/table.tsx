@@ -1,8 +1,8 @@
-import { Schedule, Interval, Lesson, isDivision, Division, isTeacher, Teacher, Room, SchedulePath, JSXElement } from "./types";
+import { Schedule, Interval, Lesson, isDivision, DivisionLesson, isTeacher, TeacherLesson, RoomLesson, SchedulePath, JSXElement } from "./types";
 
 const tableHeaders = ["Nr", "Godz", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"] as const;
 
-export function Table(schedule: Schedule, intervals: Interval[]) {
+export function createTable(schedule: Schedule, intervals: Interval[]) {
     return (
         <table>
             <thead>
@@ -27,22 +27,22 @@ function createTableBody(schedule: Schedule, intervals: Interval[]) {
         lessonContent = (l) => <>
             <span class='p'>{l.subject}</span>
             {l.group ? `-${l.group}` : ""}
-            <Anchor type='s'>{(l as Division).room}</Anchor>
-            <Anchor type='n'>{(l as Division).teacher}</Anchor><br />
+            <Anchor type='s'>{(l as DivisionLesson).room}</Anchor>
+            <Anchor type='n'>{(l as DivisionLesson).teacher}</Anchor><br />
         </>;
     } else if (isTeacher(lesson)) {
         lessonContent = (l) => <>
-            <Anchor type='o'>{(l as Teacher).division}</Anchor>
+            <Anchor type='o'>{(l as TeacherLesson).division}</Anchor>
             {l.group ? `-${l.group}` : ""}
             <span class='p'>{l.subject}</span>
-            <Anchor type='s'>{(l as Teacher).room}</Anchor><br />
+            <Anchor type='s'>{(l as TeacherLesson).room}</Anchor><br />
         </>;
     } else {
         lessonContent = (l) => <>
-            <Anchor type='o'>{(l as Room).division}</Anchor>
+            <Anchor type='o'>{(l as RoomLesson).division}</Anchor>
             {l.group ? `-${l.group}` : ""}
             <span class='p'>{l.subject}</span>
-            <Anchor type='n'>{(l as Room).teacher}</Anchor><br />
+            <Anchor type='n'>{(l as RoomLesson).teacher}</Anchor><br />
         </>;
     }
 

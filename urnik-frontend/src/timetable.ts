@@ -1,20 +1,14 @@
 import { Timetable, SchedulePath, Schedule, scheduleNames, ILesson } from "./types";
 
-export async function createTimetable(input?: URL | Timetable): Promise<Timetable> {
+export async function fetchTimetable(jsonUrl: URL): Promise<Timetable> {
     const timetable: Timetable = {
         intervals: [],
         schedules: { divisions: {}, teachers: {}, rooms: {} }
     };
 
-    if (!input) return timetable;
+    if (!jsonUrl) return timetable;
 
-    if (!(input instanceof URL)) {
-        timetable.intervals = input.intervals;
-        timetable.schedules = input.schedules;
-        return timetable;
-    }
-
-    const res = await fetch(input);
+    const res = await fetch(jsonUrl);
     const json = await res.json();
 
     timetable.intervals = json.intervals;

@@ -1,13 +1,13 @@
 import { render } from "preact";
-import { Table } from "./table";
+import { createTable } from "./table";
 import { getSchedule } from "./timetable";
-import { Timetable, ToolPath, SchedulePath, Path, schedulePaths, toolPaths, toolNames, scheduleNames } from "./types";
+import { Timetable, PagePath, SchedulePath, Path, schedulePaths, pagePaths, pageNames, scheduleNames } from "./types";
 
-export function SetPage(timetable: Timetable, path: ToolPath): void;
-export function SetPage(timetable: Timetable, path: SchedulePath, id: string): void;
-export function SetPage(timetable: Timetable, path: Path, id?: string): void {
+export function setPage(timetable: Timetable, path: PagePath): void;
+export function setPage(timetable: Timetable, path: SchedulePath, id: string): void;
+export function setPage(timetable: Timetable, path: Path, id?: string): void {
     let content = <></>;
-    let toolName: ToolPath = '';
+    let currentPagePath: PagePath = '';
 
     if (schedulePaths.includes(path)) {
         if (!id) {
@@ -23,15 +23,15 @@ export function SetPage(timetable: Timetable, path: Path, id?: string): void {
 
         localStorage.setItem("schedule", `${path}/${id}`);
 
-        content = Table(schedule, timetable.intervals);
+        content = createTable(schedule, timetable.intervals);
     } else {
-        toolName = path;
+        currentPagePath = path;
         switch (path) {
             case "":
                 const schedule = localStorage.getItem("schedule")?.split('/');
 
                 const hash = schedule ?? ['o', Object.keys(timetable.schedules.divisions)[0]];
-                SetPage(timetable, hash[0] as SchedulePath, hash[1]);
+                setPage(timetable, hash[0] as SchedulePath, hash[1]);
 
                 history.replaceState({}, '', `#/${hash[0]}/${hash[1]}`);
                 return;
@@ -48,10 +48,10 @@ export function SetPage(timetable: Timetable, path: Path, id?: string): void {
     render(<>
         <main>{content}</main>
         <nav>
-            {toolPaths.map((ToolPath) => 
-                ToolPath === toolName 
-                    ? <span key={ToolPath}>{toolNames[ToolPath]}</span>
-                    : <a key={ToolPath} href={`#/${ToolPath}`} >{toolNames[ToolPath]}</a>
+            {pagePaths.map((p) => 
+                p === currentPagePath 
+                    ? <span key={p}>{pageNames[p]}</span>
+                    : <a key={p} href={`#/${p}`} >{pageNames[p]}</a>
             )}
         </nav>
     </>, document.body);
