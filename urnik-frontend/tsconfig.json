@@ -1,9 +1,9 @@
 {
-    "compilerOptions": {
-        "strict": true,
-        "target": "esnext",
-        "jsx": "react-jsx",
-        "jsxImportSource": "preact",
-        "moduleResolution": "node"
-    }
+	"compilerOptions": {
+		"strict": true,
+		"target": "esnext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "preact",
+		"moduleResolution": "node"
+	}
 }
