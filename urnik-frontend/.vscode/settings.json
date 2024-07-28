@@ -1,0 +1,9 @@
+{
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.formatOnSave": true,
+	"Workspace_Formatter.excludePattern": [
+		"**/node_modules",
+		"pnpm-lock.yaml",
+		"**/dist"
+	]
+}
