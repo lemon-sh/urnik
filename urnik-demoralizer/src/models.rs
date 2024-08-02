@@ -1,11 +1,14 @@
 use std::collections::HashMap;
 
-use serde::Serialize;
+use serde::{
+	ser::SerializeSeq,
+	Serialize,
+};
 
 #[derive(Serialize)]
-pub struct ScheduleSet<'a> {
-	intervals: &'a [Option<(String, String)>],
-	schedules: HashMap<String, Vec<Lesson>>,
+pub struct ScheduleSet {
+	pub intervals: IntervalSet,
+	pub schedules: HashMap<String, Vec<Lesson>>,
 }
 
 #[derive(Serialize, Default)]
@@ -21,8 +24,32 @@ pub struct Lesson {
 	pub room: Option<String>,
 }
 
-#[derive(Serialize)]
 pub struct IntervalSet(Vec<Option<(String, String)>>);
+
+#[derive(Serialize)]
+struct Interval<'a> {
+	id: usize,
+	begin: &'a str,
+	end: &'a str,
+}
+
+impl Serialize for IntervalSet {
+	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+	where
+		S: serde::Serializer,
+	{
+		let mut seq = serializer.serialize_seq(None)?;
+		let intervals_iter = self.0.iter().enumerate().filter_map(|(id, interval)| {
+			interval
+				.as_ref()
+				.map(|(begin, end)| Interval { id, begin, end })
+		});
+		for interval in intervals_iter {
+			seq.serialize_element(&interval)?;
+		}
+		seq.end()
+	}
+}
 
 impl IntervalSet {
 	pub fn new() -> Self {
@@ -38,44 +65,5 @@ impl IntervalSet {
 			self.0.resize(id + 1, None);
 		}
 		self.0[id] = Some(time_range);
-	}
-
-	/// Gets the smallest interval ID
-	fn min(&self) -> usize {
-		let mut min = 0;
-		for interval in &self.0 {
-			if interval.is_some() {
-				break;
-			}
-			min += 1
-		}
-		min
-	}
-}
-
-impl<'a> ScheduleSet<'a> {
-	/// Creates a new ScheduleSet
-	///
-	/// `normalize` - normalize intervals (i.e. always starting from 0)
-	pub fn new_normalized(
-		intervals: &'a IntervalSet,
-		mut schedules: HashMap<String, Vec<Lesson>>,
-		normalize: bool,
-	) -> Self {
-		if normalize {
-			let interval_offset = intervals.min();
-			for lesson in schedules.values_mut().flatten() {
-				lesson.interval_id -= interval_offset;
-			}
-			Self {
-				intervals: &intervals.0[interval_offset..],
-				schedules,
-			}
-		} else {
-			Self {
-				intervals: &intervals.0,
-				schedules,
-			}
-		}
 	}
 }

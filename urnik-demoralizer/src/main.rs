@@ -15,7 +15,7 @@ mod textutils;
 fn main() -> color_eyre::Result<()> {
 	color_eyre::install()?;
 
-	let cfg = Config::from_cli();
+	let cfg = Config::cli();
 
 	let mut schedule_fetch = ScheduleFetch::new(cfg.url);
 
@@ -112,13 +112,16 @@ fn main() -> color_eyre::Result<()> {
 				}
 			}
 		}
-		eprint!("*")
+		eprint!("*");
 	}
 	eprintln!(".\nSerializing...");
 
-	let schedule_set = ScheduleSet::new_normalized(&intervals, schedules, cfg.normalize_intervals);
-	serde_json::to_writer(BufWriter::new(File::create(cfg.output)?), &schedule_set)?;
+	let schedule_set = ScheduleSet {
+		intervals,
+		schedules,
+	};
 
+	serde_json::to_writer(BufWriter::new(File::create(cfg.output)?), &schedule_set)?;
 	eprintln!("Done.");
 	Ok(())
 }

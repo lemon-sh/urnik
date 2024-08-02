@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+use color_eyre::eyre::bail;
 use ureq::Agent;
 
 pub struct ScheduleFetch {
@@ -17,7 +18,7 @@ impl ScheduleFetch {
 		}
 	}
 
-	pub fn next(&mut self) -> Result<Option<String>, ureq::Error> {
+	pub fn next(&mut self) -> color_eyre::Result<Option<String>> {
 		let url = format!("{}{}.html", self.prefix, self.pos);
 		match self.http.get(&url).call() {
 			Ok(response) => {
@@ -26,7 +27,7 @@ impl ScheduleFetch {
 				Ok(Some(response))
 			}
 			Err(ureq::Error::Status(404, _)) => Ok(None),
-			Err(e) => Err(e),
+			Err(e) => bail!(e),
 		}
 	}
 }
