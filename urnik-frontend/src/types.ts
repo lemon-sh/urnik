@@ -1,6 +1,10 @@
 import { JSXInternal } from "preact/src/jsx";
 
-export type Interval = readonly [string, string];
+export type Interval = {
+	id: number;
+	begin: string;
+	end: string;
+};
 
 export interface ILesson {
 	interval_id: number;

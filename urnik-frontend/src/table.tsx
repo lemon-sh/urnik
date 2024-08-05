@@ -76,20 +76,20 @@ function createTableBody(schedule: Schedule, intervals: Interval[]) {
 	}
 
 	const maxIntervalId = schedule[schedule.length - 1].interval_id;
-	const timetable: JSXElement[][][] = Array.from(Array(maxIntervalId + 1), () =>
+	const timetable: JSXElement[][][] = Array.from(Array(maxIntervalId), () =>
 		Array(5).fill(null)
 	);
 
 	for (const lesson of schedule) {
-		timetable[lesson.interval_id][lesson.day] ??= [];
-		timetable[lesson.interval_id][lesson.day].push(lessonContent(lesson));
+		timetable[lesson.interval_id - 1][lesson.day] ??= [];
+		timetable[lesson.interval_id - 1][lesson.day].push(lessonContent(lesson));
 	}
 
 	return timetable.map((timetableRow, i) => (
 		<tr>
-			<th scope="row">{i + 1}</th>
+			<th scope="row">{intervals[i].id}</th>
 			<th scope="row">
-				{intervals[i][0]} - {intervals[i][1]}
+				{intervals[i].begin} - {intervals[i].end}
 			</th>
 
 			{timetableRow.map((lesson) => (
